@@ -18,7 +18,7 @@ function Geocoder({ onLocationFound, setAttributes }) {
           const { lat, lon } = response.data[0];
           setCoordinates({ lat, lon });
           // setAttributes(response.data[0].display_name)
-          onLocationFound({ lat, lon });
+          // onLocationFound({ lat, lon });
         }
         
     

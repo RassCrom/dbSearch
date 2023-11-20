@@ -2,36 +2,31 @@ import React, { useCallback } from 'react';
 import './App.css';
 import { v4 as uuidv4 } from 'uuid';
 
-function SearchBar({ generateRegex, searchTerm, setSearchTerm, setSharedValue, serverData }) {
+function SearchBar({ searchTerm, setSearchTerm, setSharedValue, serverData, handleFlyTo }) {
+  const suggestLocation = serverData.map((suggestion) => suggestion.name);
 
-
-  const formatCityName = (cityName) => {
-    return cityName[0].toUpperCase() + cityName.slice(1)
-  };
-
-  function suggestCity() {
-    const matchSuggestionNames = serverData.map(suggestion => suggestion.name);
-    return matchSuggestionNames;
-  };
-
-  function searchCity(cityName) {
-    setSearchTerm(cityName);
-    setSharedValue(formatCityName(cityName));
+  const inputFill = (inputValue) => {
+    setSearchTerm(inputValue);
+    handleSearch()
   };
 
   const handleInputChange = useCallback((inputValue) => setSearchTerm(inputValue.target.value), [setSearchTerm]);
 
   const handleSearch = useCallback(() => {
-    const formattedCityName = formatCityName(searchTerm);
-    searchTerm.trim() !== '' ? setSharedValue(formattedCityName) : setSharedValue(searchTerm);
-  }, [searchTerm, setSharedValue]);
+    const coordsFromServerData = [serverData[0].geom[1], serverData[0].geom[0]];
+    setSharedValue(coordsFromServerData);
+    handleFlyTo(serverData[0].geom)
+  }, [serverData, setSharedValue, handleFlyTo]);
 
-  const handleKeyPress = useCallback((event) => event.key === 'Enter' && handleSearch(), [handleSearch]);
+  const handleKeyPress = useCallback((event) => {
+    if (event.key === 'Enter') {
+      handleSearch();
+    }
+  }, [handleSearch]);
   
   const resetMapFilter = useCallback(() => {
     setSearchTerm('');
-    setSharedValue('');
-  }, [setSearchTerm, setSharedValue]);
+  }, [setSearchTerm]);
 
   return (
     <div className='search'>
@@ -45,9 +40,9 @@ function SearchBar({ generateRegex, searchTerm, setSearchTerm, setSharedValue, s
             onChange={handleInputChange}
           />
           <div className='suggestion-list'>
-            {suggestCity() && suggestCity().length > 0 && searchTerm && (
-              suggestCity().map(element => (
-                <div onMouseDown={() => searchCity(element)} className='city-list' key={uuidv4()}>{element}</div>
+            {suggestLocation.length > 0 && searchTerm && (
+              suggestLocation.map(element => (
+                <div onClick={() => inputFill(element)} className='city-list' key={uuidv4()}>{element}</div>
               ))
             )}
           </div>

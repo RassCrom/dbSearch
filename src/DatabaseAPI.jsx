@@ -1,19 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import axios from 'axios';
 
-function DatabaseApi({ searchTerm, data, setData }) {
-  // Add state to store the timer ID
-  const [timer, setTimer] = useState(null);
-
+function DatabaseApi({ searchTerm, setData }) {
   useEffect(() => {
-    // Clear the previous timer (if any) when the searchTerm changes
-    if (timer) {
-      clearTimeout(timer);
-    }
-
-    // Create a new timer to delay the request by 500 milliseconds (adjust as needed)
-    const newTimer = setTimeout(() => {
-      // Ensure 'searchTerm' is properly sanitized and validated before using it in your request.
+    // Create a timer to delay the request by 10 milliseconds
+    const timer = setTimeout(() => {
+      searchTerm &&
       axios
         .get('http://localhost:3001/api/data', {
           params: {
@@ -21,7 +13,6 @@ function DatabaseApi({ searchTerm, data, setData }) {
           },
         })
         .then((response) => {
-          // Check the response status
           if (response.status === 200) {
             return response.data;
           }
@@ -34,18 +25,12 @@ function DatabaseApi({ searchTerm, data, setData }) {
         .catch((error) => {
           console.error(error);
         });
-    }, 300); // Adjust the delay duration as needed (e.g., 500 milliseconds)
+    }, 100);
 
-    // Set the new timer ID in the state
-    setTimer(newTimer);
-
-    // Clean up the timer when the component unmounts
     return () => {
-      if (timer) {
-        clearTimeout(timer);
-      }
+      clearTimeout(timer);
     };
-  }, [searchTerm]);
+  }, [searchTerm, setData]);
 
   return (
     <div>
